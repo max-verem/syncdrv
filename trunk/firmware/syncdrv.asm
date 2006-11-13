@@ -44,8 +44,8 @@
 ;.equ	__LTC_PEROID_COUNTER__		= 1
 .equ	__LTC_ERR_PEROID_COUNTER__	= 1
 ;.equ	__DEBUG_ERR_PEROID__		= 1
-;.equ	__DEBUG__				= 1
-.equ	__SEND_CONST_TC__			= 1
+;.equ	__DEBUG__					= 1
+;.equ	__SEND_CONST_TC__			= 1
 
 ;	ALGORITHM VARIANTS
 .equ	__DIS_INT_TO_AVOID_NOICE__	= 4

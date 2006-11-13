@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.0.31  C:\projects\syncdrv\firmware\syncdrv.asm Mon Nov 13 21:45:54 2006
+AVRASM ver. 2.0.31  C:\projects\syncdrv\firmware\syncdrv.asm Mon Nov 13 22:20:45 2006
 
 
 EQU  signature_000 0000001e
@@ -606,7 +606,6 @@ EQU  spmraddr     00000028
 EQU  int_vectors_size 0000002a
 EQU  __debug_tc_found_bit__ 00000001
 EQU  __ltc_err_peroid_counter__ 00000001
-EQU  __send_const_tc__ 00000001
 EQU  __dis_int_to_avoid_noice__ 00000004
 EQU  tccr0_value  0000000a
 EQU  ocr0_value   00000031
@@ -662,5 +661,5 @@ CSEG __period_is_short2 0000015d
 CSEG __skip_unlock 00000168
 CSEG __shift_loop 00000172
 CSEG __store_byte 00000179
-CSEG __signature_not_found 00000192
-CSEG __fin_check_bytes 00000193
+CSEG __signature_not_found 000001ae
+CSEG __fin_check_bytes 000001af
