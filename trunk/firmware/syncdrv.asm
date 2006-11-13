@@ -45,6 +45,7 @@
 .equ	__LTC_ERR_PEROID_COUNTER__	= 1
 ;.equ	__DEBUG_ERR_PEROID__		= 1
 ;.equ	__DEBUG__				= 1
+.equ	__SEND_CONST_TC__			= 1
 
 ;	ALGORITHM VARIANTS
 .equ	__DIS_INT_TO_AVOID_NOICE__	= 4
@@ -99,8 +100,13 @@
 .equ	DEBUG_BIT_FOUND_BIT		= 4
 .equ	DEBUG_ERR_PEROID_BIT	= 5
 
-; constants
+; RAM pointers
 .equ	SRAM_BEGIN				= 0x60
+.equ	_LTC_BITS				= 0x00 + SRAM_BEGIN
+.equ	_LTC_DETECTED			= 0x10 + SRAM_BEGIN
+.equ	_LTC_TRANS_SNAPSHOT		= 0x20 + SRAM_BEGIN
+
+; constants
 .equ	LTC_FIRST_BIT_VALUE		= 0x01
 .equ	LTC_LAST_BIT_VALUE		= 0x80
 .equ	LTC_TAIL_SIGN_1			= 0xFC
@@ -133,6 +139,7 @@
 .def	BITMASK_F				= r22
 .def	BITMASK_7				= r23
 .def	BITMASK_3				= r24
+.def	LTC_SNAPSHOT_POS		= r25
 
 ;---------------------------------------------------------------------------
 ;
@@ -145,7 +152,7 @@
 .org 0x002					; #2
 	rjmp	ltc_bit_dec		; INT0 - ext int #1 from comparator 
 .org 0x004					; #3
-	rjmp	int_ignore		; INT1
+	rjmp	send_to_lpt		; INT1
 .org 0x006					; #4
 	rjmp	int_ignore
 .org 0x008					; #5
@@ -314,6 +321,35 @@ __endless_loop:
 ;
 ;---------------------------------------------------------------------------
 send_to_lpt:
+	
+	; check if we need to send first byte
+	in temp0, PINC
+	ldi temp1, 1					; PC0 - LPT_LINE_FEED
+	and temp0, temp1
+	brne __skip_counter_reset
+	; create snapshort 
+	ldi r26, _LTC_DETECTED			; setup pointers
+	clr r27
+	ldi r28, _LTC_TRANS_SNAPSHOT
+	clr r29
+	ld temp0, X+					; copy byte #0
+	st Y+, temp0
+	ld temp0, X+					; copy byte #1
+	st Y+, temp0
+	ld temp0, X+					; copy byte #2
+	st Y+, temp0
+	ld temp0, X+					; copy byte #3
+	st Y+, temp0
+	; and reset counter
+	ldi LTC_SNAPSHOT_POS, _LTC_TRANS_SNAPSHOT
+__skip_counter_reset:
+	mov r26, LTC_SNAPSHOT_POS		; setup pointers
+	clr r27
+	ld	temp0, X					; load byte
+;	ldi temp0, 0xCC					; stupid byte 
+	out PORTA, temp0				; output byte to port
+	inc LTC_SNAPSHOT_POS
+
 	reti
 
 
@@ -451,12 +487,12 @@ __check_smpte_bits_modif_bit_fin:
 	clr r29
 	clr r31
 
-	ldi r26, 10 + SRAM_BEGIN		; load indirect addr of after-tail byte
+	ldi r26, 10 + _LTC_BITS	; load indirect addr of after-tail byte
 	st X, LTC_BIT_FOUND				; store byte
 
 	; shift 10 bytes
-	ldi r26,0 + SRAM_BEGIN			; i=0
-	ldi r28,1 + SRAM_BEGIN			; j=1
+	ldi r26,0 + _LTC_BITS			; i=0
+	ldi r28,1 + _LTC_BITS			; j=1
 	ldi temp0, 10					; 10 bytes
 __shift_loop:
 	ld temp1, X						; load byte[i]
@@ -473,7 +509,7 @@ __store_byte:
 
 
 	; check if tail is correct
-	ldi r26, 8 + SRAM_BEGIN			; load indirect addr of tail signature 1
+	ldi r26, 8 + _LTC_BITS			; load indirect addr of tail signature 1
 	ld temp1, X+					; load byte[8] signature #1
 	ldi temp0, LTC_TAIL_SIGN_1		; load sinature value 
 	cp temp1, temp0					; compare values
@@ -484,10 +520,20 @@ __store_byte:
 	brne __signature_not_found
 
 	; extract tc values
-	ldi r26,0 + SRAM_BEGIN			; i=
-	ldi r28,1 + SRAM_BEGIN			; j=
-	ldi r30,16 + SRAM_BEGIN			; k=	
+	ldi r26,0 + _LTC_BITS			; i=
+	ldi r28,1 + _LTC_BITS			; j=
+	ldi r30,_LTC_DETECTED			; k=	
 
+.ifdef __SEND_CONST_TC__
+	ldi temp1, 0x12
+	st Z+, temp1
+	ldi temp1, 0x34
+	st Z+, temp1
+	ldi temp1, 0x56
+	st Z+, temp1
+	ldi temp1, 0x78
+	st Z+, temp1
+.else
 	; frames
 	ld temp1, X+
 	ld temp2, Y+
@@ -528,6 +574,7 @@ __store_byte:
 	swap temp2
 	or temp1, temp2
 	st Z+, temp1
+.endif						; __SEND_CONST_TC__
 
 .ifdef __DEBUG_TC_FOUND_BIT__
 	; rise debug bit
