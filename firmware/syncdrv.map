@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.0.31  C:\projects\syncdrv\firmware\syncdrv.asm Mon Nov 13 22:20:45 2006
+AVRASM ver. 2.0.31  C:\projects\syncdrv\firmware\syncdrv.asm Thu Nov 23 20:33:00 2006
 
 
 EQU  signature_000 0000001e
@@ -605,7 +605,6 @@ EQU  oc0addr      00000026
 EQU  spmraddr     00000028
 EQU  int_vectors_size 0000002a
 EQU  __debug_tc_found_bit__ 00000001
-EQU  __ltc_err_peroid_counter__ 00000001
 EQU  __dis_int_to_avoid_noice__ 00000004
 EQU  tccr0_value  0000000a
 EQU  ocr0_value   00000031
@@ -631,6 +630,8 @@ EQU  bitmask_7_value 00000007
 EQU  bitmask_3_value 00000003
 EQU  ltc_peroid_long_value 00000010
 EQU  ltc_peroid_short_value 00000008
+EQU  diag_timer_counter 000000e1
+DEF  diag_state_data r10
 DEF  temp0        r16
 DEF  temp1        r20
 DEF  temp2        r21
@@ -647,19 +648,21 @@ DEF  bitmask_7    r23
 DEF  bitmask_3    r24
 DEF  ltc_snapshot_pos r25
 CSEG main         00000101
-CSEG ltc_bit_dec  00000146
-CSEG send_to_lpt  0000012f
+CSEG ltc_bit_dec  00000160
+CSEG send_to_lpt  00000149
 CSEG int_ignore   00000100
-CSEG period_counter 00000162
-CSEG __endless_loop 0000012b
-CSEG __skip_counter_reset 00000140
-CSEG __period_is_long 00000154
-CSEG __period_is_short 00000159
-CSEG __fin_dec    00000152
-CSEG check_smpte_bits 0000016a
-CSEG __period_is_short2 0000015d
-CSEG __skip_unlock 00000168
-CSEG __shift_loop 00000172
-CSEG __store_byte 00000179
-CSEG __signature_not_found 000001ae
-CSEG __fin_check_bytes 000001af
+CSEG diag_timer   0000013f
+CSEG vbi_begin    0000013c
+CSEG period_counter 00000179
+CSEG __endless_loop 00000138
+CSEG __skip_counter_reset 0000015a
+CSEG __period_is_long 0000016b
+CSEG __period_is_short 00000170
+CSEG __fin_dec    00000169
+CSEG check_smpte_bits 00000181
+CSEG __period_is_short2 00000174
+CSEG __skip_unlock 0000017f
+CSEG __shift_loop 00000189
+CSEG __store_byte 00000190
+CSEG __signature_not_found 000001c7
+CSEG __fin_check_bytes 000001c8

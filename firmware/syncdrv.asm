@@ -42,7 +42,7 @@
 ;.equ	__DEBUG_BIT_FOUND_BIT__		= 1
 .equ	__DEBUG_TC_FOUND_BIT__		= 1
 ;.equ	__LTC_PEROID_COUNTER__		= 1
-.equ	__LTC_ERR_PEROID_COUNTER__	= 1
+;.equ	__LTC_ERR_PEROID_COUNTER__	= 1
 ;.equ	__DEBUG_ERR_PEROID__		= 1
 ;.equ	__DEBUG__					= 1
 ;.equ	__SEND_CONST_TC__			= 1
@@ -123,8 +123,12 @@
 .equ	LTC_PEROID_LONG_VALUE	= 0x10
 .equ	LTC_PEROID_SHORT_VALUE	= 0x08
 
+; diag timer - we want 2Hz -> 
+; [ 65535 -  (16000000/1024/2) ] = 65535 - 7812 = 57723 = 0xE17B
+.equ	DIAG_TIMER_COUNTER		= 0xE1
 
 ; registers used
+.def	DIAG_STATE_DATA			= r10
 .def	temp0					= r16
 .def	temp1					= r20
 .def	temp2					= r21
@@ -154,7 +158,7 @@
 .org 0x004					; #3
 	rjmp	send_to_lpt		; INT1
 .org 0x006					; #4
-	rjmp	int_ignore
+	rjmp	int_ignore		; TIMER2 COMP
 .org 0x008					; #5
 	rjmp	int_ignore
 .org 0x00A					; #6
@@ -163,8 +167,8 @@
 	rjmp	int_ignore
 .org 0x00E					; #8
 	rjmp	int_ignore
-.org 0x010					; #9
-	rjmp	int_ignore
+.org 0x010					; #9 
+	rjmp	diag_timer		; TIMER1 OVF
 .org 0x012					; #10
 	rjmp	int_ignore
 .org 0x014					; #11
@@ -184,9 +188,9 @@
 .org 0x022					; #18
 	rjmp	int_ignore
 .org 0x024					; #19
-	rjmp	int_ignore
+	rjmp	vbi_begin		; INT2 - interrupt from VBI decoupler
 .org 0x026					; #20
-	rjmp	period_counter	; TIMER0_COMP - counter of ticks
+	rjmp	period_counter	; TIMER0 COMP - counter of ticks
 .org 0x028					; #21
 	rjmp	int_ignore		
 
@@ -236,6 +240,19 @@ main:
 	ldi temp0, 0x02				; OCIE0 output compare int enable
 	out TIMSK, temp0
 
+;	setup TIMER1 (in normal mode)
+	ldi temp0, 0
+	out TCCR1A, temp0
+	ldi temp0, 0x5				; clk/1024
+	out TCCR1B, temp0
+	ldi temp0, 0				; Timer1 counter setup
+	out TCNT1L, temp0
+	ldi temp0, DIAG_TIMER_COUNTER
+	out TCNT1H, temp0
+	in temp0, TIMSK
+	sbr temp0, 1<<2				; TOIE1, Overflow enable for Timer1
+	out TIMSK, temp0
+
 ;	setup default values
 	ldi temp0, LTC_PEROID_SHORT_VALUE
 	mov LTC_PEROID_SHORT, temp0
@@ -252,11 +269,15 @@ main:
 	ldi temp0, BITMASK_3_VALUE
 	mov BITMASK_3, temp0
 
-;	setup INT0 and INT1
-;	ldi temp0, 0x0E				; ISC1[2]=11 (rising edge) ISC0[2]=10 (falling edge)
+	; diag data
+	ldi temp0, 0xFF
+	mov DIAG_STATE_DATA, temp0
+
+
+;	setup INT0 and INT1 and INT2 (do not care about ISC2)
 	ldi temp0, 0x09				; ISC1[2]=10 (falling edge) ISC0[2]=01 (any logical change)
 	out MCUCR, temp0
-	ldi temp0, 0xC0
+	ldi temp0, 0xE0				; INT0...INT2 enabled
 	out GICR, temp0
 
 .ifdef __DEBUG__
@@ -305,6 +326,10 @@ main:
 
 .endif
 
+; test output zeros to PORTB
+;	clr temp0
+;	out PORTB, temp0
+
 
 
 	sei							; enable interrupts
@@ -314,6 +339,45 @@ __endless_loop:
 	nop
 	rjmp __endless_loop
 
+;---------------------------------------------------------------------------
+;
+; INT2 vbi
+;
+;---------------------------------------------------------------------------
+vbi_begin:
+	ldi temp0, 1					; set bit 0 of diag register
+	or DIAG_STATE_DATA, temp0
+
+	;
+
+	reti
+
+;---------------------------------------------------------------------------
+;
+; TIMER1 OVF period counter, called in 2Hz freq
+;
+;---------------------------------------------------------------------------
+diag_timer:
+	ldi temp0, DIAG_TIMER_COUNTER	; Timer1 counter setup
+	out TCNT1H, temp0
+	ldi temp0, 0
+	out TCNT1L, temp0
+
+;;	in temp0, PORTB
+;;	ldi temp1, 3
+;;	eor temp0, temp1
+;;	out PORTB, temp0
+
+	; flip bit 3
+	ldi temp0, (1<<3)
+	eor DIAG_STATE_DATA, temp0
+
+
+	out PORTB, DIAG_STATE_DATA		; output current value
+	ldi temp0, 0xFF - (1 + 2)
+	and DIAG_STATE_DATA, temp0		; clear diag bits 0,1
+
+	reti
 
 ;---------------------------------------------------------------------------
 ;
@@ -355,14 +419,14 @@ __skip_counter_reset:
 
 ;---------------------------------------------------------------------------
 ;
-; INT request from comparator
+; INT0 request from comparator
 ;
 ;---------------------------------------------------------------------------
 ltc_bit_dec:
 
 .ifdef __DIS_INT_TO_AVOID_NOICE__
 	in temp0, GICR
-	cbr temp0, 6					; disable INT0
+	cbr temp0, 1<<6					; disable INT0
 	out GICR, temp0
 .endif
 
@@ -442,7 +506,7 @@ period_counter:
 	cp temp0, LTC_PEROID_COUNTER
 	brlt __skip_unlock
 	in temp0, GICR
-	sbr temp0, 6					; allow INT0
+	sbr temp0, 1<<6					; allow INT0
 	out GICR, temp0
 __skip_unlock:
 .endif
@@ -533,7 +597,7 @@ __store_byte:
 	st Z+, temp1
 	ldi temp1, 0x78
 	st Z+, temp1
-.else
+.else								; !__SEND_CONST_TC__
 	; frames
 	ld temp1, X+
 	ld temp2, Y+
@@ -576,6 +640,11 @@ __store_byte:
 	st Z+, temp1
 .endif						; __SEND_CONST_TC__
 
+	; deal with diagnostic bit
+	ldi temp0, 2				; rise bit 1 of diag register
+	or DIAG_STATE_DATA, temp0
+
+
 .ifdef __DEBUG_TC_FOUND_BIT__
 	; rise debug bit
 	sbi PORTC, DEBUG_TC_FOUND_BIT
@@ -589,3 +658,4 @@ __signature_not_found:
 .endif
 __fin_check_bytes:
 	ret
+

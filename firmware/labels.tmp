@@ -7,22 +7,24 @@
   <FILE>C:\Program Files\Atmel\AVR Tools\AvrAssembler2\Appnotes\m16def.inc</FILE>
  </INCLUDED_FILES>
  <LABELS>
-  <main><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>209</LINE></main>
-  <ltc_bit_dec><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>361</LINE></ltc_bit_dec>
-  <send_to_lpt><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>323</LINE></send_to_lpt>
-  <int_ignore><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>200</LINE></int_ignore>
-  <period_counter><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>438</LINE></period_counter>
-  <__endless_loop><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>311</LINE></__endless_loop>
-  <__skip_counter_reset><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>345</LINE></__skip_counter_reset>
-  <__period_is_long><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>415</LINE></__period_is_long>
-  <__period_is_short><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>421</LINE></__period_is_short>
-  <__fin_dec><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>411</LINE></__fin_dec>
-  <check_smpte_bits><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>473</LINE></check_smpte_bits>
-  <__period_is_short2><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>427</LINE></__period_is_short2>
-  <__skip_unlock><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>447</LINE></__skip_unlock>
-  <__shift_loop><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>497</LINE></__shift_loop>
-  <__store_byte><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>505</LINE></__store_byte>
-  <__signature_not_found><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>585</LINE></__signature_not_found>
-  <__fin_check_bytes><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>590</LINE></__fin_check_bytes>
+  <main><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>213</LINE></main>
+  <ltc_bit_dec><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>425</LINE></ltc_bit_dec>
+  <send_to_lpt><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>387</LINE></send_to_lpt>
+  <int_ignore><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>204</LINE></int_ignore>
+  <diag_timer><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>360</LINE></diag_timer>
+  <vbi_begin><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>347</LINE></vbi_begin>
+  <period_counter><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>502</LINE></period_counter>
+  <__endless_loop><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>336</LINE></__endless_loop>
+  <__skip_counter_reset><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>409</LINE></__skip_counter_reset>
+  <__period_is_long><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>479</LINE></__period_is_long>
+  <__period_is_short><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>485</LINE></__period_is_short>
+  <__fin_dec><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>475</LINE></__fin_dec>
+  <check_smpte_bits><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>537</LINE></check_smpte_bits>
+  <__period_is_short2><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>491</LINE></__period_is_short2>
+  <__skip_unlock><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>511</LINE></__skip_unlock>
+  <__shift_loop><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>561</LINE></__shift_loop>
+  <__store_byte><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>569</LINE></__store_byte>
+  <__signature_not_found><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>654</LINE></__signature_not_found>
+  <__fin_check_bytes><FILE>C:\projects\syncdrv\firmware\syncdrv.asm</FILE><LINE>659</LINE></__fin_check_bytes>
  </LABELS>
 </ASSEMBLER_INFO>
